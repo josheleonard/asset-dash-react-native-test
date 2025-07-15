@@ -18,6 +18,19 @@ export default function DegenListScreen() {
     refetch: refetchDegenList,
   } = useDegenList();
 
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const refresh = React.useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      await refetchDegenList();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchDegenList]);
+
   if (isPending) {
     return (
       <View style={styles.container}>
@@ -38,10 +51,7 @@ export default function DegenListScreen() {
         extraData={isFetchingDegenList}
         maxToRenderPerBatch={10}
         refreshControl={
-          <RefreshControl
-            refreshing={isFetchingDegenList}
-            onRefresh={refetchDegenList}
-          />
+          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} />
         }
       />
     </SafeAreaView>
