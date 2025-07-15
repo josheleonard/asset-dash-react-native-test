@@ -27,6 +27,7 @@ export default function DegenListScreen() {
     isFetching: isFetchingDegenList,
     isPending,
     refetch: refetchDegenList,
+    isError,
   } = useDegenList();
 
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -126,6 +127,22 @@ export default function DegenListScreen() {
     );
   }
 
+  if (isError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Something went wrong, try again later
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => refetchDegenList()}
+        >
+          <Text style={styles.buttonText}>Try again</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Modal transparent visible={isSortModalOpen}>
@@ -187,16 +204,18 @@ export default function DegenListScreen() {
             }}
             onSubmitEditing={Keyboard.dismiss}
           />
-          <TouchableOpacity
-            onPress={() => {
-              setIsSortModalOpen(true);
-            }}
-            style={styles.sortButton}
-          >
-            <Text style={styles.sortButtonText}>
-              Sort by: {sortBy} ({sortOrder})
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.sortButtonContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                setIsSortModalOpen(true);
+              }}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>
+                Sort by: {sortBy} ({sortOrder})
+              </Text>
+            </TouchableOpacity>
+          </View>
           <SegmentedControl
             values={segments}
             selectedIndex={selectedSegmentIndex}
@@ -208,20 +227,26 @@ export default function DegenListScreen() {
               );
             }}
           />
-          <FlatList
-            keyboardDismissMode="on-drag"
-            data={sortedFilteredList}
-            renderItem={({ item }) => (
-              <DegenListItem isRefreshing={isFetchingDegenList} item={item} />
-            )}
-            keyExtractor={(item) => item.token_address}
-            contentContainerStyle={styles.flatListContentContainer}
-            extraData={isFetchingDegenList}
-            maxToRenderPerBatch={10}
-            refreshControl={
-              <RefreshControl refreshing={isRefreshing} onRefresh={refresh} />
-            }
-          />
+          {sortedFilteredList.length ? (
+            <FlatList
+              keyboardDismissMode="on-drag"
+              data={sortedFilteredList}
+              renderItem={({ item }) => (
+                <DegenListItem isRefreshing={isFetchingDegenList} item={item} />
+              )}
+              keyExtractor={(item) => item.token_address}
+              contentContainerStyle={styles.flatListContentContainer}
+              extraData={isFetchingDegenList}
+              maxToRenderPerBatch={10}
+              refreshControl={
+                <RefreshControl refreshing={isRefreshing} onRefresh={refresh} />
+              }
+            />
+          ) : (
+            <View style={styles.noAssetsFoundContainer}>
+              <Text>No assets found</Text>
+            </View>
+          )}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -273,14 +298,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  sortButton: {
+  button: {
     padding: 12,
     backgroundColor: "blue",
     borderRadius: 14,
     marginBottom: 8,
+  },
+  buttonText: {
+    color: "white",
+  },
+  sortButtonContainer: {
     alignSelf: "baseline",
   },
-  sortButtonText: {
-    color: "white",
+  noAssetsFoundContainer: { flex: 1 },
+  errorContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "red",
   },
 });
