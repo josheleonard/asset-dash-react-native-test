@@ -23,8 +23,8 @@ export default function DegenListItem({
   item: DegenListItemData;
   isRefreshing: boolean;
 }) {
-  const onTokenPress = React.useCallback(() => {
-    Linking.openURL(`https://solscan.io/token/${item.token_address}`);
+  const onTokenPress = React.useCallback(async () => {
+    await Linking.openURL(`https://solscan.io/token/${item.token_address}`);
   }, [item.token_address]);
 
   return (
