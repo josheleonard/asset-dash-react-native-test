@@ -40,7 +40,7 @@ export default function DegenListItem({
         style={styles.tokenIcon}
         transition={500}
       />
-      <Text>{item.token_symbol}</Text>
+      <Text>{item.token_symbol || "???"}</Text>
       <Text>{priceFormatter.format(item.price_usd)}</Text>
       {item.is_new ? <Text>New</Text> : null}
       {item.is_pro ? <Text>Pro</Text> : null}

@@ -2,11 +2,13 @@ import React from "react";
 import {
   FlatList,
   Keyboard,
+  Modal,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -28,6 +30,11 @@ export default function DegenListScreen() {
   } = useDegenList();
 
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isSortModalOpen, setIsSortModalOpen] = React.useState(false);
+  const [sortBy, setSortBy] = React.useState<"price" | "symbol">("price");
+  const [sortOrder, setSortOrder] = React.useState<"ascending" | "descending">(
+    "descending"
+  );
 
   const [priceGreaterThanFilterInput, setPriceGreaterThanFilterInput] =
     React.useState("");
@@ -52,12 +59,41 @@ export default function DegenListScreen() {
     }
     return degenList.filter((item) => {
       return (
-        item.price_usd >= parsedPriceFilter &&
+        item.price_usd > parsedPriceFilter &&
         (isProFilter === undefined || item.is_pro === isProFilter) &&
         (isNewFilter === undefined || item.is_new === isNewFilter)
       );
     });
   }, [degenList, isNewFilter, isProFilter, parsedPriceFilter]);
+
+  const sortedFilteredList = React.useMemo(() => {
+    if (sortBy === "symbol") {
+      return [...filteredList].sort(
+        sortOrder === "ascending"
+          ? (itemA, itemB) => {
+              return (
+                itemA.token_symbol?.localeCompare(itemB.token_symbol || "") || 0
+              );
+            }
+          : (itemA, itemB) => {
+              return (
+                itemB.token_symbol?.localeCompare(itemA.token_symbol || "") || 0
+              );
+            }
+      );
+    }
+
+    // price
+    return [...filteredList].sort(
+      sortOrder === "ascending"
+        ? (itemA, itemB) => {
+            return itemA.price_usd - itemB.price_usd;
+          }
+        : (itemA, itemB) => {
+            return itemB.price_usd - itemA.price_usd;
+          }
+    );
+  }, [filteredList, sortBy, sortOrder]);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -92,6 +128,49 @@ export default function DegenListScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Modal transparent visible={isSortModalOpen}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Sort assets by:</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setSortBy("price");
+                setSortOrder("ascending");
+                setIsSortModalOpen(false);
+              }}
+            >
+              <Text>Price (Ascending)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSortBy("price");
+                setSortOrder("descending");
+                setIsSortModalOpen(false);
+              }}
+            >
+              <Text>Price (Descending)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSortBy("symbol");
+                setSortOrder("ascending");
+                setIsSortModalOpen(false);
+              }}
+            >
+              <Text>Symbol (Ascending)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSortBy("symbol");
+                setSortOrder("descending");
+                setIsSortModalOpen(false);
+              }}
+            >
+              <Text>Symbol (Descending)</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Text>Price greater than:</Text>
@@ -108,6 +187,16 @@ export default function DegenListScreen() {
             }}
             onSubmitEditing={Keyboard.dismiss}
           />
+          <TouchableOpacity
+            onPress={() => {
+              setIsSortModalOpen(true);
+            }}
+            style={styles.sortButton}
+          >
+            <Text style={styles.sortButtonText}>
+              Sort by: {sortBy} ({sortOrder})
+            </Text>
+          </TouchableOpacity>
           <SegmentedControl
             values={segments}
             selectedIndex={selectedSegmentIndex}
@@ -121,7 +210,7 @@ export default function DegenListScreen() {
           />
           <FlatList
             keyboardDismissMode="on-drag"
-            data={filteredList}
+            data={sortedFilteredList}
             renderItem={({ item }) => (
               <DegenListItem isRefreshing={isFetchingDegenList} item={item} />
             )}
@@ -149,6 +238,7 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "center",
     width: "100%",
+    padding: 8,
   },
   loadingText: {
     textAlign: "center",
@@ -162,4 +252,35 @@ const styles = StyleSheet.create({
   },
   flatListContentContainer: { gap: 24 },
   segmentedControl: { marginBottom: 16 },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 35,
+    alignItems: "flex-start",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    gap: 14,
+  },
+  modalTitle: { marginBottom: 16, fontWeight: "bold" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sortButton: {
+    padding: 12,
+    backgroundColor: "blue",
+    borderRadius: 14,
+    marginBottom: 8,
+    alignSelf: "baseline",
+  },
+  sortButtonText: {
+    color: "white",
+  },
 });
