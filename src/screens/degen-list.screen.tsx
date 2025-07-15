@@ -21,7 +21,9 @@ import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 const numberRegex = /^(?:\d+\.?\d*|\.\d*)?$/;
 
 const segments = ["All", "New", "Pro"];
+
 export default function DegenListScreen() {
+  // queries
   const {
     data: degenList,
     isFetching: isFetchingDegenList,
@@ -30,6 +32,7 @@ export default function DegenListScreen() {
     isError,
   } = useDegenList();
 
+  // state
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isSortModalOpen, setIsSortModalOpen] = React.useState(false);
   const [sortBy, setSortBy] = React.useState<"price" | "symbol">("price");
@@ -50,6 +53,7 @@ export default function DegenListScreen() {
     setItem: setSelectedSegmentIndexStorage,
   } = useAsyncStorage("@selectedSegmentIndex");
 
+  // computed and memoized values
   const isNewFilter = selectedSegmentIndex === 1 || undefined;
   const isProFilter = selectedSegmentIndex === 2 || undefined;
   const parsedPriceFilter = parseFloat(priceGreaterThanFilterInput) || 0;
@@ -96,6 +100,7 @@ export default function DegenListScreen() {
     );
   }, [filteredList, sortBy, sortOrder]);
 
+  // methods
   const refresh = React.useCallback(async () => {
     try {
       setIsRefreshing(true);
@@ -107,6 +112,7 @@ export default function DegenListScreen() {
     }
   }, [refetchDegenList]);
 
+  // effects
   // update state with storage values on mount
   React.useEffect(() => {
     (async () => {
@@ -119,6 +125,7 @@ export default function DegenListScreen() {
     })();
   }, [getPriceGreaterThanFilterInput, getSelectedSegmentIndex]);
 
+  // render
   if (isPending) {
     return (
       <View style={styles.container}>

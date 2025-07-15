@@ -43,6 +43,7 @@ export default function DegenListItem({
       <Text>{item.token_symbol || "???"}</Text>
       <Text>{priceFormatter.format(item.price_usd)}</Text>
       {item.is_new ? <Text>New</Text> : null}
+      {item.is_new && item.is_pro ? <Text> - </Text> : null}
       {item.is_pro ? <Text>Pro</Text> : null}
     </TouchableOpacity>
   );
