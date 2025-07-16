@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useDeferredValue } from "react";
 import {
   FlatList,
   Keyboard,
@@ -54,10 +54,16 @@ export default function DegenListScreen() {
     setItem: setSelectedSegmentIndexStorage,
   } = useAsyncStorage("@selectedSegmentIndex");
 
+  // deferred values
+  const deferredPriceGreaterThanFilterInput = useDeferredValue(
+    priceGreaterThanFilterInput
+  );
+
   // computed and memoized values
   const isNewFilter = selectedSegmentIndex === 1 || undefined;
   const isProFilter = selectedSegmentIndex === 2 || undefined;
-  const parsedPriceFilter = parseFloat(priceGreaterThanFilterInput) || 0;
+  const parsedPriceFilter =
+    parseFloat(deferredPriceGreaterThanFilterInput) || 0;
 
   const filteredList = React.useMemo(() => {
     if (!degenList) {
