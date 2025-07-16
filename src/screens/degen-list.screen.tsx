@@ -5,6 +5,7 @@ import {
   Modal,
   RefreshControl,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -262,6 +263,8 @@ export default function DegenListScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
+    // account for status bar height on Android
+    paddingTop: StatusBar.currentHeight,
     flex: 1,
   },
   container: {
