@@ -158,7 +158,8 @@ export default function DegenListScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Sort assets by:</Text>
             <TouchableOpacity
-              onPress={() => {
+              onPress={(e) => {
+                e.stopPropagation();
                 setSortBy("price");
                 setSortOrder("ascending");
                 setIsSortModalOpen(false);
@@ -167,7 +168,8 @@ export default function DegenListScreen() {
               <Text>Price (Ascending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
+              onPress={(e) => {
+                e.stopPropagation();
                 setSortBy("price");
                 setSortOrder("descending");
                 setIsSortModalOpen(false);
@@ -176,7 +178,8 @@ export default function DegenListScreen() {
               <Text>Price (Descending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
+              onPress={(e) => {
+                e.stopPropagation();
                 setSortBy("symbol");
                 setSortOrder("ascending");
                 setIsSortModalOpen(false);
@@ -185,7 +188,8 @@ export default function DegenListScreen() {
               <Text>Symbol (Ascending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
+              onPress={(e) => {
+                e.stopPropagation();
                 setSortBy("symbol");
                 setSortOrder("descending");
                 setIsSortModalOpen(false);
@@ -214,7 +218,8 @@ export default function DegenListScreen() {
           />
           <View style={styles.sortButtonContainer}>
             <TouchableOpacity
-              onPress={() => {
+              onPress={(e) => {
+                e.stopPropagation();
                 setIsSortModalOpen(true);
               }}
               style={styles.button}
@@ -229,6 +234,7 @@ export default function DegenListScreen() {
             selectedIndex={selectedSegmentIndex}
             style={styles.segmentedControl}
             onChange={(event) => {
+              Keyboard.dismiss();
               setSelectedSegmentIndex(event.nativeEvent.selectedSegmentIndex);
               setSelectedSegmentIndexStorage(
                 event.nativeEvent.selectedSegmentIndex.toString()
